@@ -1,0 +1,18 @@
+<article id="preview">
+  <p><a href="#editform"><button type="button">Editor</button></a>
+
+  <h2>[case:[caption]|Enter thread title...|[caption]]</h2>
+  <hr size=1>
+  <header>
+    [case:[UserID]|<span>|<a href="/!userinfo/[url:[html:[UserName]]]">]<img width=48 height=48 border=0 align=middle hspace=4 vspace=0 src="/!avatar/[url:[html:[UserName]]]?v=[AVer]">
+    &nbsp;[usr:[UserName]][case:[UserID]|</span>|</a>]
+  </header>
+
+  <div align=justify>
+    [html:[[case:[format]|minimag:[include:minimag_suffix.tpl]|bbcode:][source]]]
+  </div>
+
+  <div>
+    [attach_edit:[id]]
+  </div>
+</article>

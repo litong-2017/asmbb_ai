@@ -1,0 +1,194 @@
+@import "skin_variables.lsi";
+
+  header, footer, .global-row, .attribution, .vspacer {
+    display: none !important;
+  }
+
+
+@media (max-width: 600px) {
+  body {
+    height: auto !important;
+    overflow-y: hidden !important;
+    overflow-x: auto;
+  }
+
+  .editor {
+    height: 100vh !important;
+    margin: 0 !important;
+  }
+  
+  #editor-window:target {
+    z-index: 10000;
+  }
+
+  #preview {
+    background-color: @clLightGray;
+    margin: 0 !important;
+    padding: @margin;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    &:target {
+      z-index: 10000;
+      top: 0;
+    }
+  }
+
+  #preview-switch {
+    display: flex !important;
+  }
+}
+
+@media (orientation: landscape) {
+  body {
+    flex-direction: row !important;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .editor {
+    margin: 0 !important;
+    width: 50vw;
+  }
+}
+
+
+@media (orientation: portrait) {
+  body {
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .editor {
+    height: 50vh;
+  }
+
+  #preview {
+    width: auto;
+  }
+}
+
+
+body {
+  display: flex;
+  flex-direction: column;
+  & > * {
+    margin-left: @margin !important;
+    margin-right: @margin !important;
+  }
+}
+
+.thread {
+  flex-grow: 1;
+  overflow: auto;
+}
+
+.header > *:not(#forum-header) {
+  display: none !important;
+}
+
+.editor {
+  background-color: @clWhite;
+  color: @clDarkGray;
+  padding: @margin;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  flex-shrink: 0;
+  z-index: 1000;
+
+  * {
+    overscroll-behavior: none;
+  }
+
+  svg {
+    fill: @clDarkGray;
+  }
+
+  p {
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+
+.thread_editor {
+  color: @clBlack;
+  display: flex;
+  flex-direction: column;
+}
+
+#preview-switch {
+  display: none;
+}
+
+
+#source {
+  flex-grow: 1;
+  margin: 0;
+  resize: none;
+  padding: @margin/2;
+}
+
+#editform {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+
+  textarea {
+    font-size: @FontSizeMono;
+    font-family: @FontMonospace;
+  }
+}
+
+
+.attach_del {
+  overflow: auto;
+  flex-grow: 1;
+  background-color: inherit;
+  color: inherit;
+  table {
+    width: 100%;
+  }
+}
+
+
+.editgroup {
+  display: flex;
+  margin: @margin/2 0;
+  align-items: end;
+
+  & > * {
+    margin: 0px @margin/2;
+    &:first-child {
+      margin-left: 0px;
+    }
+    &:last-child {
+      margin-right: 0px;
+    }
+    input, textarea {
+      width: 100%;
+      margin: 0px !important;
+    }
+    textarea {
+      height: 15em;
+    }
+    flex-grow: 1;
+    & > * {
+      display: block;
+    }
+  }
+}
+
+
+.post {
+  flex-basis: auto !important;
+}
+
+
+.help {
+  font-size: 10px;
+  overflow: auto !important;
+}

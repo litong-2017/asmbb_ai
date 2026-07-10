@@ -1,0 +1,75 @@
+[case:[special:lang]|
+  [equ:ttlPinned=Pinned thread]
+  [equ:ttlLimited=Limited access thread]
+  [equ:ttlUnread=[case:[Unread]|Go to last message|Go to first unread ([Unread])]]
+  [equ:tPosts=post[case:[PostCount]|s||s]]
+  [equ:ttlMark=Mark thread read]
+  [equ:tViews=view[case:[ReadCount]|s||s]]
+  [equ:Posters=Participants]
+  [equ:Invited=Invited]
+  [equ:Tags=Tags]
+  [equ:Rating=Rating]
+  [equ:lblUnread=unread]
+|
+  [equ:ttlPinned=Закрепена отгоре]
+  [equ:ttlLimited=Тема с ограничен достъп]
+  [equ:ttlUnread=[case:[Unread]|Към последното|Към първото непрочетено]]
+  [equ:tPosts=съобщени[case:[PostCount]|я|е|я]]
+  [equ:ttlMark=Маркирай темата като прочетена]
+  [equ:tViews=преглед[case:[ReadCount]|а||а]]
+  [equ:Posters=Участници]
+  [equ:Invited=Поканени]
+  [equ:Tags=Тагове]
+  [equ:Rating=Рейтинг]
+  [equ:lblUnread=[case:[Unread]|непрочетени|непрочетено|непрочетени]]
+|
+  [equ:ttlPinned=Прикрепленная на верху]
+  [equ:ttlLimited=Тема ограниченным доступом]
+  [equ:ttlUnread=[case:[Unread]|В край темы|К первому непрочитанному]]
+  [equ:tPosts=сообщени[case:[PostCount]|й|е|й]]
+  [equ:ttlMark=Отметить тему прочитанной]
+  [equ:tViews=просмотр[case:[ReadCount]|ов||ов]]
+  [equ:Posters=Участники]
+  [equ:Invited=Приглашенные]
+  [equ:Tags=Ярлыки]
+  [equ:Rating=Рейтинг]
+  [equ:lblUnread=[case:[Unread]|непрочитанных|непрочитанное|непрочитанных]]
+|
+  [equ:ttlPinned=Sujet épinglé]
+  [equ:ttlLimited=Sujet à accès limité]
+  [equ:ttlUnread=[case:[Unread]|Pas de messages non-lus|Allez au premier non-lu]]
+  [equ:tPosts=post[case:[PostCount]|s||s]]
+  [equ:ttlMark=Marquer le sujet comme lu]
+  [equ:tViews=vue[case:[ReadCount]|s||s]]
+  [equ:Posters=Participants]
+  [equ:Invited=Invités]
+  [equ:Tags=Mots-clés]
+  [equ:Rating=Évaluation]
+  [equ:lblUnread=unread]
+|
+  [equ:ttlPinned=Angeheftetes Thema]
+  [equ:ttlLimited=Beschränktes Thema]
+  [equ:ttlUnread=[case:[Unread]|Keine ungelesenen Beiträge|Springe zum ersten ungelesenen Beitrag]]
+  [equ:tPosts=Beitr[case:[PostCount]|äge|ag|äge]]
+  [equ:ttlMark=Thema als gelesen kennzeichnen]
+  [equ:tViews=[case:[ReadCount]|Ansichten|Ansicht|Ansichten]]
+  [equ:Posters=Teilnehmer]
+  [equ:Invited=Eingeladen]
+  [equ:Tags=Tags]
+  [equ:Rating=Bewertung]
+  [equ:lblUnread=unread]
+]
+
+<hr size=1>
+<p>[case:[Pinned]||<img width=24 height=24 align=top src="[special:skin]/_images/pinned.png">&nbsp;]
+   [case:[Unread]||<img width=24 height=24 align=top src="[special:skin]/_images/unread.png">&nbsp;]
+   <a href="[Slug]/!unread" title="[const:ttlUnread]"><b><big>[Caption]</big></b></a>
+
+
+<p>[PostCount] [const:tPosts][case:[Unread]|| / [Unread] [const:lblUnread]] ^| [ReadCount] [const:tViews] ^| [TimeChanged]
+
+<table cellspacing=0 cellpadding=4><tr valign=top>
+  <td><details><summary>[const:Posters]</summary><ul compact type=none style="padding:0; margin:0">[html:[Posters]</ul>]
+  [case:[ThreadTags]||<td><details><summary>[const:Tags]</summary><ul compact type=none style="padding:0; margin:0">[html:[ThreadTags]</ul>]]
+</table>
+</details>

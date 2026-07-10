@@ -1,0 +1,47 @@
+[case:[special:lang]|
+  [equ:hRestore=Restore post?]
+  [equ:pQuestion=Do you <b>really</b> want to restore this post to the previous version?]
+  [equ:btnRestore=Restore]
+  [equ:btnCancel=Cancel]
+|
+  [equ:hRestore=Възстановяване?]
+  [equ:pQuestion=<b>Наистина ли</b> желаете да възстановите това съобщение до предишна версия?]
+  [equ:btnRestore=Възстанови]
+  [equ:btnCancel=Отказ]
+|
+  [equ:hRestore=Восстановить пост?]
+  [equ:pQuestion=Вы <b>действительно</b> хотите восстановить это сообщение в предыдущей версии?]
+  [equ:btnRestore=Восстановить]
+  [equ:btnCancel=Отменить]
+|
+  [equ:hRestore=Restaurer le message?]
+  [equ:pQuestion=Voulez-vous <b>vraiment</b> restaurer ce message dans sa précédente version?]
+  [equ:btnRestore=Restaurer]
+  [equ:btnCancel=Annuler]
+|
+  [equ:hRestore=Beitrag wiederherstellen?]
+  [equ:pQuestion=Möchten Sie diesen Beitrag <b>wirklich</b> auf die vorherige Version zurücksetzen?]
+  [equ:btnRestore=Wiederherstellen]
+  [equ:btnCancel=Abbrechen]
+]
+
+<form method="post">
+  <h2><mark>&nbsp;[const:hRestore]&nbsp;</mark></h2>
+
+    <p>[const:pQuestion]
+
+<fieldset>
+  <legend>[case:[special:lang]|Post content|Съдържание на поста|Содержание поста|Contenu du message|Inhalt des Beitrags|Post text]</legend>
+
+  <div align=justify>
+    [html:[[case:[format]|minimag:[include:minimag_suffix.tpl]|bbcode:][Content]]]
+  </div>
+</fieldset>
+
+<p>
+<p><input type="submit" value="[const:btnRestore]">
+   <a href="/[postID]/!history#[version]">[const:btnCancel]</a>
+
+   <input type="hidden" name="version" value="[version]">
+   <input type="hidden" name="ticket" value="[Ticket]">
+</form>
