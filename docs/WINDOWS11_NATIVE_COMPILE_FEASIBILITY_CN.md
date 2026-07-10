@@ -8,7 +8,7 @@
 2. 汇编主程序：把 `source/engine.asm` 编译为 `www/engine`。
 3. 构建完整发布包：生成 `engine`、`libsqlite3.so`、`ld-musl-i386.so` 并打包 `asmbb.tar.gz`。
 
-结论是：Windows 11 原生环境可以稳定完成第 1 项；第 2 项理论上可行但依赖 Fresh IDE/FASM 和正确的 FreshLib/TargetOS 配置，当前机器尚未安装工具，未完成实测；第 3 项按现有脚本不适合纯 Windows 原生完成。
+截至 2026-07-11 的实测结论是：Windows 11 原生环境可以稳定完成第 1 项；第 2 项已经可以启动 FASM 汇编并解析 FreshLib，但当前源码和 `FreshLibDev/freshlib` 组合不能直接产出 `www/engine`，失败点是缺少 `StrExtractMem` 符号；第 3 项按现有脚本仍不适合纯 Windows 原生完成。
 
 ## 当前验证环境
 
@@ -30,40 +30,32 @@ FreshLib 依赖：
 FreshLibDev/freshlib
 ```
 
-已验证命令：
-
-```powershell
-Get-Command fasm -ErrorAction SilentlyContinue
-Get-Command fasmw -ErrorAction SilentlyContinue
-Get-Command Fresh -ErrorAction SilentlyContinue
-Get-ChildItem -Recurse ..\FreshLibDev -Include fasm.exe,fasmw.exe,Fresh.exe -File
-```
-
-当前结果：
+Windows PATH 中已找到的工具：
 
 ```text
-未在 Windows PATH 中找到 fasm / fasmw / Fresh。
-未在 FreshLibDev 目录下找到 fasm.exe / fasmw.exe / Fresh.exe。
+fasm.exe   D:\_Scoop\shims\fasm.exe
+fasmw.exe  D:\_Scoop\shims\fasmw.exe
+fresh.exe  D:\_Scoop\shims\fresh.exe
 ```
 
-因此当前机器无法直接实测主程序汇编，只能验证源码条件和样式构建。
+`FreshLibDev` 目录下未发现项目自带的 `fasm.exe`、`fasmw.exe` 或 `Fresh.exe`。
 
 ## 可行性结论
 
 | 项目 | Windows 11 原生可行性 | 当前验证结果 | 说明 |
 |---|---|---|---|
 | 主题样式 `.less -> .css` | 可行 | 已验证通过 | 使用 `npm run build:styles`，不依赖 WSL |
-| 主程序 `source/engine.asm -> www/engine` | 条件可行 | 未实测 | 需要安装 Fresh IDE 或 FASM for Windows |
+| 主程序 `source/engine.asm -> www/engine` | 当前未通过 | 已实测失败 | FASM 可启动，FreshLib include 可解析，但缺少 `StrExtractMem` 定义 |
+| Fresh IDE 打开 `source/engine.fpr` 构建 | 条件可行，未完成图形界面实测 | 未验证 | `engine.fpr` 明确记录主文件、输出和 `TargetOS` 变量，可能由 Fresh IDE 补齐部分项目上下文 |
 | `musl_sqlite/build` | 不推荐 | 未执行 | 依赖 Linux shell、gcc/make、musl 构建环境 |
-| 完整 `install/create_release.sh` 发布包 | 不推荐 | 仅语法检查通过 | 运行时会触发 Linux 工具链和发布打包 |
+| 完整 `install/create_release.sh` 发布包 | 不推荐 | 未执行 | 运行时会触发 Linux 工具链、动态库构建和发布打包 |
 
 ## 已验证：主题样式可原生编译
 
-现代样式构建已支持 Windows PowerShell：
+现代样式构建支持 Windows PowerShell：
 
 ```powershell
 cd D:\_LT\_data\1_otherdata\0_code_space\2_asm\0_ai\0_git\asmbb
-npm install
 npm run build:styles
 ```
 
@@ -83,7 +75,7 @@ Failed: 0
 - `Urban Sunrise` 中不兼容 Node 版 Less 的旧语法已迁移。
 - 生成的 `www/templates/**/*.css` 是可再生成产物，已通过 `.gitignore` 排除。
 
-## 主程序原生汇编的条件
+## 已验证：命令行 FASM 尚不能直接生成 engine
 
 主入口文件：
 
@@ -106,31 +98,62 @@ include "%lib%/data/minimag.asm"
 uses sqlite3:"%TargetOS%/sqlite3.inc"
 ```
 
-FreshLib 中 Linux 目标宏会生成 ELF：
+本次使用 Windows 原生 FASM 执行：
+
+```powershell
+cd D:\_LT\_data\1_otherdata\0_code_space\2_asm\0_ai\0_git\asmbb
+
+$env:lib = "D:\_LT\_data\1_otherdata\0_code_space\2_asm\0_ai\0_git\FreshLibDev\freshlib"
+$env:TargetOS = "Linux"
+fasm source\engine.asm www\engine
+```
+
+FASM 版本：
 
 ```text
-FreshLibDev/freshlib/macros/Linux/_executable.inc
+flat assembler version 1.73.34
 ```
 
-其中包含：
+实际结果：
 
-```asm
-TargetOS equ Linux
-format ELF executable
-interpreter LINUX_INTERPRETER
+```text
+source\render2.asm [1288]:
+        stdcall StrExtractMem, edx ; remaining arguments from the stack.
+...\FreshLibDev\freshlib/macros/_stdcall.inc [272] stdcall [16]:
+  call proc
+processed: call StrExtractMem
+error: undefined symbol 'StrExtractMem'.
 ```
 
-因此，从源码结构看，Windows 上的 FASM/Fresh IDE 只要能解析 `%lib%` 和 `%TargetOS%`，理论上可以交叉汇编出 Linux ELF 格式的 `www/engine`。但这个产物不能直接在 Windows 原生环境运行。
+同时确认：
 
-## 推荐的 Windows 原生汇编验证步骤
+- `www\engine` 未生成。
+- `source\render2.asm` 中有 3 处 `StrExtractMem` 引用。
+- 当前 `FreshLibDev\freshlib` 中未搜索到 `StrExtractMem` 定义。
+
+这说明 Windows 原生 FASM 工具链已经能进入真实项目汇编阶段，问题不再是“没有 FASM”，而是当前 AsmBB 源码和本地 FreshLib 依赖之间存在未满足的符号、版本或项目配置条件。它可能不是 Windows 特有问题，但在当前 Windows 11 原生命令行环境下，不能认定主程序已可直接编译。
+
+## `engine.fpr` 对可行性的意义
+
+`source/engine.fpr` 是 Fresh IDE 项目文件，当前文件中能看到这些关键信息：
+
+```text
+MAIN      engine.asm
+output    ../www/engine
+VARS      TargetOS Linux|Win32|KolibriOS
+```
+
+因此，使用 Fresh IDE 打开 `source/engine.fpr` 仍然是比裸 `fasm source\engine.asm www\engine` 更接近原项目工作流的验证路径。Fresh IDE 可能会加载项目变量、输出目标和附加上下文。
+
+但在没有完成 Fresh IDE 图形界面构建验证前，本文档不把主程序汇编标记为“通过”。
+
+## 推荐的下一步原生汇编验证
 
 ### 方案 A：使用 Fresh IDE
 
-这是最接近原项目工作流的方式。
-
 准备：
 
-- 安装 Fresh IDE for Windows。
+- 使用 PATH 中已有的 `fresh.exe` 或安装 Fresh IDE for Windows。
 - 确保 Fresh IDE 能找到 FASM。
 - 配置 FreshLib 路径到：
 
@@ -168,42 +191,27 @@ D:\_LT\_data\1_otherdata\0_code_space\2_asm\0_ai\0_git\asmbb\www\engine
 验收标准：
 
 - 构建过程无 FASM/FreshLib include 错误。
-- `www/engine` 被生成或更新时间改变。
-- 如果通过 WSL 检查，`file www/engine` 应显示 ELF 可执行文件。
+- 不再出现 `StrExtractMem` undefined symbol。
+- `www\engine` 被生成或更新时间改变。
+- 如果通过 WSL/Linux 检查，`file www/engine` 应显示 ELF 可执行文件。
 
-### 方案 B：使用 FASM for Windows 命令行
+### 方案 B：修正依赖后重试 FASM 命令行
 
-这是实验性方式，可能不如 Fresh IDE 稳定，因为 `.fpr` 中的项目变量和输出目标需要手动补齐。
+命令行方式已经证明 FASM 和 FreshLib include 路径基本可用，下一步应优先处理 `StrExtractMem`：
 
-准备：
+- 确认当前 AsmBB checkout 需要匹配哪个 FreshLib 版本。
+- 在 FreshLib 历史版本或上游源码中查找 `StrExtractMem`。
+- 如果该符号已被重命名或删除，需要更新 `source/render2.asm` 中对应调用，或切换到兼容 FreshLib。
 
-- 安装 FASM for Windows，并让 `fasm.exe` 位于 PATH。
-
-PowerShell 示例：
+处理后再执行：
 
 ```powershell
 cd D:\_LT\_data\1_otherdata\0_code_space\2_asm\0_ai\0_git\asmbb
 
 $env:lib = "D:\_LT\_data\1_otherdata\0_code_space\2_asm\0_ai\0_git\FreshLibDev\freshlib"
 $env:TargetOS = "Linux"
-
 fasm source\engine.asm www\engine
 ```
-
-如果失败，优先检查：
-
-- 是否能打开 `%lib%/freshlib.inc`。
-- 是否能打开 `%TargetOS%/sqlite3.inc`。
-- FreshLib 的 Linux 宏是否被正确加载。
-- 当前 FASM 版本是否支持该项目使用的宏。
-
-命令行方式通过后，再用：
-
-```powershell
-Get-Item www\engine
-```
-
-确认输出文件存在。
 
 ## 不建议 Windows 原生完成完整发布包
 
@@ -259,36 +267,14 @@ ld-musl-i386.so
 
 ```text
 Windows 原生样式编译：通过
-Windows 原生主程序汇编：未验证，缺少 fasm/fasmw/Fresh 工具
+Windows 原生主程序汇编：未通过，FASM 失败于 undefined symbol 'StrExtractMem'
 Windows 原生完整发布包：不推荐，现有脚本依赖 Linux 工具链
 ```
 
 更准确的判断：
 
 - “仅编译样式资源”：Windows 11 原生可行，已验证。
-- “仅汇编出 Linux 目标 engine”：Windows 11 原生条件可行，需要安装 Fresh IDE/FASM 后验证。
+- “仅汇编出 Linux 目标 engine”：当前 Windows 11 原生命令行 FASM 未通过；需要先解决 `StrExtractMem` 缺失或使用 Fresh IDE 完成进一步验证。
 - “编译并打完整发布包”：Windows 11 原生不作为推荐路径，应使用 WSL/Linux。
 
-## 后续验证清单
-
-安装 Fresh IDE 或 FASM for Windows 后，按以下顺序验证：
-
-```powershell
-cd D:\_LT\_data\1_otherdata\0_code_space\2_asm\0_ai\0_git\asmbb
-
-npm install
-npm run build:styles
-
-$env:lib = "D:\_LT\_data\1_otherdata\0_code_space\2_asm\0_ai\0_git\FreshLibDev\freshlib"
-$env:TargetOS = "Linux"
-fasm source\engine.asm www\engine
-```
-
-如果命令行 FASM 失败，改用 Fresh IDE 打开：
-
-```text
-source/engine.fpr
-```
-
-并在 Fresh IDE 中配置目标平台和 FreshLib 路径。
-
+因此，如果“仅仅编译该项目”指的是只跑前端样式构建，结论是可行；如果指的是生成 `www\engine`，当前本地源码/依赖组合在 Windows 11 原生环境下尚未通过；如果指的是发布包，则仍应走 WSL/Linux。
