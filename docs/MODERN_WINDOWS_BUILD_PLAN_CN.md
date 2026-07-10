@@ -2,6 +2,17 @@
 
 本文档给出 `asmbb` 项目现代化构建改造方案，目标是让主题样式构建和发布流程兼容 Windows 11、WSL/Linux，并逐步替换旧的 `clessc` + shell 脚本流程。
 
+## 当前落地状态
+
+本方案已开始落地：
+
+- 已新增 `package.json` 和 `package-lock.json`。
+- 已新增 `scripts/build-styles.mjs`。
+- 已将 `www/templates/**/*.css` 标记为可再生成产物并加入 `.gitignore`。
+- 已迁移 `Urban Sunrise` 中 Node 版 `lessc` 不兼容的选择器和数学表达式。
+- 已将 `install/create_release.sh` 接入 `npm run build:styles`。
+- 已在 Windows 环境验证样式构建成功：`CSS compiled: 103`，`Failed: 0`。
+
 ## 目标
 
 改造目标：
@@ -660,4 +671,3 @@ git add docs/MODERN_WINDOWS_BUILD_PLAN_CN.md
 git commit -m "Add modern Windows-compatible build plan"
 git push
 ```
-

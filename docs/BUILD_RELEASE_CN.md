@@ -66,21 +66,34 @@ export lib=/path/to/0_git/FreshLibDev/freshlib
 - `rm`
 - `tar`
 - `rsync`
+- `node`
+- `npm`
 - 可执行权限支持
 
 ### 主题样式工具
 
-各主题的 `compile_styles.sh` 会调用：
+推荐使用现代 Node.js 构建入口：
 
-- `clessc`
+- `package.json`
+- `scripts/build-styles.mjs`
+- npm 包 `less`
 
-脚本会把主题目录下的 `.less` 编译为同名 `.css`。发布脚本会编译这些主题：
+执行：
+
+```sh
+npm ci
+npm run build:styles
+```
+
+脚本会把主题目录下的 `.less` 编译为同名 `.css`，并处理 Windows checkout 下的一行路径占位文件。发布脚本会编译这些主题：
 
 - `www/templates/Wasp`
 - `www/templates/Light`
 - `www/templates/mobile`
 - `www/templates/MoLight`
 - `www/templates/Urban Sunrise`
+
+旧的 `www/templates/*/compile_styles.sh` 仍保留，但仅作为 legacy 入口；只有使用旧入口时才需要 `clessc`。
 
 ### musl 与 SQLite 构建工具
 
@@ -170,14 +183,23 @@ rm -f libsqlite3.so ld-musl-i386.so
 
 ### 4. 编译主题样式
 
-发布脚本会自动编译主题样式。也可以单独进入主题目录执行：
+发布脚本会自动编译主题样式。也可以在项目根目录单独执行：
 
-```sh
-cd asmbb/www/templates/Wasp
-./compile_styles.sh
+```powershell
+cd D:\_LT\_data\1_otherdata\0_code_space\2_asm\0_ai\0_git\asmbb
+npm install
+npm run build:styles
 ```
 
-如果提示 `clessc: command not found`，需要先安装 `clessc`。
+在 WSL/Linux 中推荐：
+
+```sh
+cd /mnt/d/_LT/_data/1_otherdata/0_code_space/2_asm/0_ai/0_git/asmbb
+npm ci
+npm run build:styles
+```
+
+旧的 `www/templates/*/compile_styles.sh` 仅作为 legacy 入口保留。
 
 ### 5. 创建发布包
 
@@ -240,6 +262,70 @@ board.sqlite
 - 发布包解压后包含 `engine`、两个 `.so` 文件、`templates/` 和 `images/`。
 - `_FOSSIL_`、本地数据库、临时目录没有进入发布包或 Git 提交。
 
+## 现代化样式构建
+
+当前项目已增加跨平台样式构建入口：
+
+```text
+package.json
+package-lock.json
+scripts/build-styles.mjs
+```
+
+现代构建不再依赖 `clessc`。样式构建使用 Node.js 版 Less 编译器，通过 npm 脚本执行：
+
+```powershell
+npm install
+npm run build:styles
+```
+
+在 WSL/Linux 发布环境中推荐使用：
+
+```sh
+npm ci
+npm run build:styles
+```
+
+构建脚本会扫描 `www/templates` 下所有 `.less` 文件，并处理 Windows checkout 下的一行路径占位文件，例如：
+
+```text
+Light/chat.less -> ../Wasp/chat.less
+MoLight/posts.less -> ../mobile/posts.less
+```
+
+这类文件会被解析到真实 Less 源文件，CSS 仍输出到当前主题目录。成功构建时应看到类似统计：
+
+```text
+Less files: 103
+Linked less files: 53
+Real less files: 50
+CSS compiled: 103
+Failed: 0
+```
+
+`www/templates/**/*.css` 是可再生成产物，已通过 `.gitignore` 排除。发布脚本会在打包前重新生成 CSS。
+
+## 发布脚本中的样式构建
+
+`install/create_release.sh` 已接入现代样式构建流程。脚本会从项目根目录执行：
+
+```sh
+if [ -f package-lock.json ]; then
+  npm ci
+else
+  npm install
+fi
+npm run build:styles
+```
+
+因此发布环境新增依赖：
+
+- Node.js
+- npm
+- 可访问 npm registry，或提前准备好 npm 缓存/内网镜像
+
+原 `www/templates/*/compile_styles.sh` 保留为 legacy 兼容入口，不再是推荐构建路径。
+
 ## 常见问题
 
 ### 找不到 FreshLib
@@ -254,12 +340,14 @@ board.sqlite
 
 ### clessc 不存在
 
-主题样式脚本依赖 `clessc`。安装后重新执行：
+现代构建不需要 `clessc`。请使用：
 
-```sh
-cd asmbb/install
-./create_release.sh
+```powershell
+npm install
+npm run build:styles
 ```
+
+如果仍在使用旧的 `www/templates/*/compile_styles.sh`，才需要自行准备 `clessc` 或兼容包装脚本。
 
 ### gcc -m32 不可用
 
@@ -279,4 +367,3 @@ git add docs/BUILD_RELEASE_CN.md
 git commit -m "Add Chinese build and release guide"
 git push
 ```
-

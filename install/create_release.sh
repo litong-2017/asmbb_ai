@@ -4,29 +4,17 @@
 
 mkdir asmbb
 
-# complile less files
+# compile less files
 
 pushd .
 
-echo "Compile Wasp theme styles..."
-cd ../www/templates/Wasp/
-./compile_styles.sh
-
-echo "Compile Light theme styles..."
-cd ../Light/
-./compile_styles.sh
-
-echo "Compile mobile theme styles..."
-cd ../mobile/
-./compile_styles.sh
-
-echo "Compile MoLight theme styles..."
-cd ../MoLight/
-./compile_styles.sh
-
-echo "Compile Urban Sunrise theme styles..."
-cd ../Urban\ Sunrise/
-./compile_styles.sh
+cd ..
+if [ -f package-lock.json ]; then
+  npm ci
+else
+  npm install
+fi
+npm run build:styles
 
 popd
 

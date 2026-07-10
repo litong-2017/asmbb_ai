@@ -13,7 +13,7 @@ Windows 11
     FASM
     FreshLib 路径
     gcc / make / tar / unzip / wget / rsync
-    clessc 或兼容包装脚本
+    Node.js / npm / less
 ```
 
 原因：
@@ -118,7 +118,29 @@ sudo apt install -y build-essential gcc-multilib g++-multilib make tar unzip wge
 - `dos2unix`：必要时修正脚本换行。
 - `nodejs`、`npm`：可用于准备 Less 编译兼容工具。
 
-## 准备 clessc
+## 准备现代样式构建工具
+
+现代化样式构建使用 Node.js、npm 和项目内的 Less 依赖，不再要求全局安装 `clessc`。
+
+在 Windows 11 PowerShell 中执行：
+
+```powershell
+cd D:\_LT\_data\1_otherdata\0_code_space\2_asm\0_ai\0_git\asmbb
+npm install
+npm run build:styles
+```
+
+在 WSL/Linux 中执行：
+
+```sh
+cd /mnt/d/_LT/_data/1_otherdata/0_code_space/2_asm/0_ai/0_git/asmbb
+npm ci
+npm run build:styles
+```
+
+脚本会自动处理 `Light`、`MoLight` 等主题中的一行路径占位 `.less` 文件，并输出对应 `.css`。
+
+## 准备 clessc（legacy）
 
 主题样式脚本调用的是：
 
@@ -379,7 +401,14 @@ chmod +x asmbb/musl_sqlite/build
 
 ### clessc: command not found
 
-按本文档的“准备 clessc”章节安装 Less 并创建兼容包装脚本。
+现代构建流程不再依赖 `clessc`。在 Windows 11 中请进入 `asmbb` 根目录执行：
+
+```powershell
+npm install
+npm run build:styles
+```
+
+`clessc` 只用于旧的 `www/templates/*/compile_styles.sh`，该入口现在作为 legacy 兼容方式保留。
 
 ### musl_sqlite/build 需要联网
 
@@ -418,12 +447,31 @@ which fasm || true
 which gcc
 gcc -m32 --version
 which rsync
-which clessc
+which node
+which npm
 ls "$lib/freshlib.inc"
 ls asmbb/source/engine.asm
 ```
 
 这些检查通过后，再进行主程序构建、运行库构建和发布包打包。
+
+Windows 原生 PowerShell 可直接验证现代样式构建：
+
+```powershell
+cd D:\_LT\_data\1_otherdata\0_code_space\2_asm\0_ai\0_git\asmbb
+npm install
+npm run build:styles
+```
+
+成功时应输出：
+
+```text
+Less files: 103
+Linked less files: 53
+Real less files: 50
+CSS compiled: 103
+Failed: 0
+```
 
 ## 手动提交
 
@@ -435,4 +483,3 @@ git add docs/WINDOWS11_BUILD_ENV_CN.md
 git commit -m "Add Windows 11 build environment guide"
 git push
 ```
-

@@ -281,7 +281,7 @@ select {
 }
 
 
-input^[type=text^], input^[type=search^], input^[type=email^], input^[type=password^], input^[type=number^] {
+input[type=text], input[type=search], input[type=email], input[type=password], input[type=number] {
   background-color: @clWhite;
   color: @clBlack;
   padding: 4px 8px;
@@ -292,14 +292,14 @@ input^[type=text^], input^[type=search^], input^[type=email^], input^[type=passw
 }
 
 
-input^[type=text^], input^[type=email^], input^[type=password^], input^[type=number^], select, textarea {
+input[type=text], input[type=email], input[type=password], input[type=number], select, textarea {
   border: 1px solid @clGray;
   &:focus {
     border: 1px solid @clYellow;
   }
 }
 
-input^[type=search^] {
+input[type=search] {
   border: none;
 }
 
@@ -465,7 +465,7 @@ a.current_tag {
 
 /* Decorative checkbox mechanism. The label tag, must be styled separately! */
 
-.checkbox input^[type=checkbox^], .delcheck > input^[type=checkbox^] {
+.checkbox input[type=checkbox], .delcheck > input[type=checkbox] {
   position: absolute;
   z-index: -1;
   left: -100000px;
@@ -514,7 +514,7 @@ a.current_tag {
 .dropdown {
   align-items: start;
 
-  & > input^[type=checkbox^], & > input^[type=radio^] {
+  & > input[type=checkbox], & > input[type=radio] {
     position: absolute;
     z-index: -1;
     left: -100000px;
@@ -537,7 +537,7 @@ a.current_tag {
     }
 
     &:checked + label {
-      height: @buttonHeight + @margin/2;
+      height: (@buttonHeight + (@margin / 2));
       & + * {
         width: 100%;
         flex-basis: 100%;
@@ -564,7 +564,7 @@ a.current_tag {
   flex-grow: 1;
 //  overflow: hidden;
 
-  & > input^[type=radio^] {
+  & > input[type=radio] {
     &:not(checked) + label {
       background-color: transparent;
       color: inherit;
@@ -574,7 +574,7 @@ a.current_tag {
       background-color: @clWhite;
       border: 1px solid @clGray;
       border-bottom: none;
-      height: @buttonHeight+5px;
+      height: (@buttonHeight + 5px);
       z-index: 100;
       color: @clBlack;
       svg {
@@ -595,7 +595,7 @@ a.current_tag {
         border-top: 1px solid @clGray;
         color: @clBlack;
         position: absolute;
-        top: @buttonHeight+4px;
+        top: (@buttonHeight + 4px);
         bottom: 0;
         flex-basis: 100%;
         display: flex;

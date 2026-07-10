@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "build:styles": "node scripts/build-styles.mjs"
+  },
+  "devDependencies": {
+    "less": "^4.2.0"
+  }
+}
